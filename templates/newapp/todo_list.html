@@ -1,0 +1,239 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Todo List</title>
+  <style>
+    /* ========== Global Styles ========== */
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 900px;
+      background: #ffffff;
+      padding: 30px 40px;
+      border-radius: 15px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      animation: fadeIn 0.7s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ========== Header ========== */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    h2 {
+      color: #2d3748;
+      font-size: 26px;
+      font-weight: 600;
+    }
+
+    .logout-btn {
+      background: linear-gradient(135deg, #e53e3e, #c53030);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .logout-btn:hover {
+      background: linear-gradient(135deg, #c53030, #9b2c2c);
+      transform: translateY(-2px);
+    }
+
+    /* ========== Add Todo Button ========== */
+    .add-btn {
+      text-align: right;
+      margin-bottom: 20px;
+    }
+
+    a.btn {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 10px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 500;
+      box-shadow: 0 3px 8px rgba(102,126,234,0.3);
+      transition: all 0.3s ease;
+    }
+
+    a.btn:hover {
+      background: linear-gradient(135deg, #5a67d8, #6b46c1);
+      transform: translateY(-2px);
+    }
+
+    /* ========== Messages ========== */
+    .messages {
+      color: #38a169;
+      text-align: center;
+      margin: 10px 0;
+      font-weight: 500;
+      background: #f0fff4;
+      border: 1px solid #c6f6d5;
+      padding: 8px;
+      border-radius: 6px;
+    }
+
+    /* ========== Table ========== */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 14px;
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #edf2f7;
+      color: #4a5568;
+      font-size: 15px;
+    }
+
+    tr:hover td {
+      background-color: #f7fafc;
+      transition: 0.3s;
+    }
+
+    /* ========== Action Buttons ========== */
+    .action-btns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .action-btns a {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 14px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+
+    .edit-btn {
+      background: #3182ce;
+    }
+    .edit-btn:hover {
+      background: #2b6cb0;
+      transform: translateY(-2px);
+    }
+
+    .delete-btn {
+      background: #e53e3e;
+    }
+    .delete-btn:hover {
+      background: #c53030;
+      transform: translateY(-2px);
+    }
+
+    /* ========== Empty Message ========== */
+    .no-todos {
+      text-align: center;
+      padding: 20px;
+      color: #718096;
+      font-style: italic;
+    }
+
+    /* ========== Responsive ========== */
+    @media (max-width: 700px) {
+      .container {
+        padding: 25px;
+      }
+      h2 {
+        font-size: 20px;
+      }
+      th, td {
+        font-size: 13px;
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h2>Todo List ({{ request.user.username }})</h2>
+      <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+    </div>
+
+    <!-- Add Todo Button -->
+    <div class="add-btn">
+      <a href="{% url 'create_todo' %}" class="btn">+ Add New Todo</a>
+    </div>
+
+    <!-- Messages -->
+    {% for msg in messages %}
+      <p class="messages">{{ msg }}</p>
+    {% endfor %}
+
+    <!-- Todo Table -->
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Task Name</th>
+          <th>Description</th>
+          <th>Text</th>
+          {% if request.user.is_superuser %}
+          <th>User</th>
+          {% endif %}
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for todo in todos %}
+        <tr>
+          <td>{{ todo.id }}</td>
+          <td>{{ todo.task_name }}</td>
+          <td>{{ todo.description }}</td>
+          <td>{{ todo.text }}</td>
+          {% if request.user.is_superuser %}
+          <td>{{ todo.user.username }}</td>
+          {% endif %}
+          <td class="action-btns">
+            <a href="{% url 'update_todo' todo.id %}" class="edit-btn">Edit</a>
+            <a href="{% url 'delete_todo' todo.id %}" class="delete-btn">Delete</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="no-todos">No todos yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
